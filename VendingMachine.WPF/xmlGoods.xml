@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Goods>
+  <Product name="Tea">
+    <LocalName lang="en">Tea</LocalName>
+    <LocalName lang="ru">Чай</LocalName>
+    <Color></Color>
+    <Price>13</Price>
+    <Quantity>10</Quantity>
+  </Product>
+  <Product name="Coffee">
+    <LocalName lang="en">Coffee</LocalName>
+    <LocalName lang="ru">Кофе</LocalName>
+    <Color></Color>
+    <Price>18</Price>
+    <Quantity>20</Quantity>
+  </Product>
+  <Product name="CoffeeWithMilk">
+    <LocalName lang="en">Coffee with milk</LocalName>
+    <LocalName lang="ru">Кофе с молоком</LocalName>
+    <Color>SandyBrown</Color>
+    <Price>21</Price>
+    <Quantity>20</Quantity>
+  </Product>
+  <Product name="Juice">
+    <LocalName lang="en">Juice</LocalName>
+    <LocalName lang="ru">Сок</LocalName>
+    <Color></Color>
+    <Price>35</Price>
+    <Quantity>15</Quantity>
+  </Product>
+</Goods>

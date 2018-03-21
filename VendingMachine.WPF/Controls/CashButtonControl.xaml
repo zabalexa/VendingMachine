@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="VendingMachine.WPF.CashButtonControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:VendingMachine.WPF"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Canvas>
+            <local:CoinsBar Value="{Binding Path=Coins[1].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar1" />
+            <local:CoinsBar Value="{Binding Path=Coins[2].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar2" />
+            <local:CoinsBar Value="{Binding Path=Coins[5].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar5" />
+            <local:CoinsBar Value="{Binding Path=Coins[10].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar10" />
+        </Canvas>
+        <GroupBox x:Name="DropCoins" Height="100" Width="72" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Grid>
+                <TextBox Text="{Binding Path=PutCoinBox.PayBalance, Mode=OneWay}" Height="20" Width="30" Margin="5,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" TextAlignment="Right" TextWrapping="NoWrap" IsReadOnly="True" />
+                <Label x:Name="DropCurrency" Margin="0,0,-5,0" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                <Rectangle x:Name="PutCoins" Height="40" Width="16" Margin="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Fill="LightGray" Stroke="Black">
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Drop">
+                            <i:InvokeCommandAction Command="{Binding PaymentCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Rectangle>
+            </Grid>
+        </GroupBox>
+        <Button x:Name="ChangeButton" FontWeight="Bold" Width="100" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding ChangeCommand}" MouseEnter="ChangeButton_MouseEnter" />
+    </Grid>
+</UserControl>

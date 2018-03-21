@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Goods>
+  <Product name="BlackTea">
+    <LocalName lang="en">Black tea</LocalName>
+    <LocalName lang="ru">Черный чай</LocalName>
+    <Color></Color>
+    <Price>13</Price>
+    <Quantity>10</Quantity>
+  </Product>
+  <Product name="BlackTeaWithLemon">
+    <LocalName lang="en">Black tea with lemon</LocalName>
+    <LocalName lang="ru">Черный чай с лимоном</LocalName>
+    <Color>Firebrick</Color>
+    <Price>19</Price>
+    <Quantity>15</Quantity>
+  </Product>
+  <Product name="GreenTea">
+    <LocalName lang="en">Green tea</LocalName>
+    <LocalName lang="ru">Зеленый чай</LocalName>
+    <Color>YellowGreen</Color>
+    <Price>15</Price>
+    <Quantity>10</Quantity>
+  </Product>
+  <Product name="Coffee">
+    <LocalName lang="en">Coffee</LocalName>
+    <LocalName lang="ru">Кофе</LocalName>
+    <Color></Color>
+    <Price>18</Price>
+    <Quantity>20</Quantity>
+  </Product>
+  <Product name="CoffeeWithMilk">
+    <LocalName lang="en">Coffee with milk</LocalName>
+    <LocalName lang="ru">Кофе с молоком</LocalName>
+    <Color>SandyBrown</Color>
+    <Price>21</Price>
+    <Quantity>20</Quantity>
+  </Product>
+  <Product name="OrangeJuice">
+    <LocalName lang="en">Orange juice</LocalName>
+    <LocalName lang="ru">Апельсиновый сок</LocalName>
+    <Color></Color>
+    <Price>35</Price>
+    <Quantity>15</Quantity>
+  </Product>
+  <Product name="GrapefruitJuice">
+    <LocalName lang="en">Grapefruit juice</LocalName>
+    <LocalName lang="ru">Грейпфрутовый сок</LocalName>
+    <Color>Orange</Color>
+    <Price>35</Price>
+    <Quantity>15</Quantity>
+  </Product>
+  <Product name="TomatoJuice">
+    <LocalName lang="en">Tomato juice</LocalName>
+    <LocalName lang="ru">Томатный сок</LocalName>
+    <Color>Red</Color>
+    <Price>25</Price>
+    <Quantity>15</Quantity>
+  </Product>
+  <Product name="WaterWithLemonJuice">
+    <LocalName lang="en">Lemonade</LocalName>
+    <LocalName lang="ru">Лимонад</LocalName>
+    <Color>Yellow</Color>
+    <Price>23</Price>
+    <Quantity>20</Quantity>
+  </Product>
+</Goods>
