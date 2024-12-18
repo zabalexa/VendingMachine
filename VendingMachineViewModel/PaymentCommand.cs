@@ -10,7 +10,7 @@ namespace VendingMachineViewModel
     {
         public override bool CanExecute(object parameter)
         {
-            return GetCoinsQty((CoinType)parameter) > 0;
+            return (parameter == null ? false : (GetCoinsQty((CoinType)parameter) > 0));
         }
 
         public override void Execute(object parameter)

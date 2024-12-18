@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using VendingMachineDataInjectionInterfaces.DomainMappedObjects;
-
-namespace VendingMachineDataInjectionInterfaces
+﻿namespace VendingMachineDataInjectionInterfaces
 {
     public delegate void VoidEventHandler();
     public delegate void VoidEventHandler<P>(P param);

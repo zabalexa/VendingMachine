@@ -88,6 +88,20 @@ namespace VendingMachineViewModel
                 }
             }
 
+            private int _draggingCoin;
+            public int DraggingCoin
+            {
+                get { return _draggingCoin; }
+                set
+                {
+                    if (_draggingCoin != value)
+                    {
+                        _draggingCoin = value;
+                        OnPropertyChanged(nameof(DraggingCoin));
+                    }
+                }
+            }
+
             public Dictionary<CoinType, Template> Templates { get; set; }
         }
 
@@ -147,6 +161,11 @@ namespace VendingMachineViewModel
         public ICommand PaymentCommand
         {
             get { return new PaymentCommand().BindCommandToModel(this); }
+        }
+
+        public ICommand FocusCommand
+        {
+            get { return new FocusCommand(); }
         }
 
         public Dictionary<CoinType, Coin> Coins

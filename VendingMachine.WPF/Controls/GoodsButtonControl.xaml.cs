@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
+using VendingMachineDataInjectionInterfaces;
 using VendingMachineDataInjectionInterfaces.DomainMappedObjects;
 using VendingMachineViewModel;
 
@@ -16,17 +17,19 @@ namespace VendingMachine.WPF
     public partial class GoodsButtonControl : UserControl, IDisposable
     {
         private readonly ControlTemplate _template;
+        private readonly Display _scrollableContainerParams;
+        private bool _disposed = false;
 
         public GoodsButtonControl()
         {
             _template = (ControlTemplate)XamlReader.Parse("<ControlTemplate xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' xmlns:x='http://schemas.microsoft.com/winfx/2006/xaml' TargetType=\"Button\"><Border Name=\"brdr\" BorderBrush=\"Black\" BorderThickness=\"1\"><Grid><Image x:Name=\"ibtn\" Stretch=\"None\" VerticalAlignment=\"Center\" HorizontalAlignment=\"Center\"><Image.Style><Style TargetType=\"{x:Type Image}\"></Style></Image.Style></Image><Label x:Name=\"tbtn\" VerticalAlignment=\"Top\" HorizontalAlignment=\"Right\" Margin=\"0,-4,-1,0\" /></Grid></Border><ControlTemplate.Triggers><Trigger Property=\"IsMouseOver\" Value=\"true\"><Setter TargetName=\"brdr\" Property=\"BorderThickness\" Value=\"2\" /><Setter TargetName=\"brdr\" Property=\"BorderBrush\" Value=\"Cyan\" /><Setter TargetName=\"tbtn\" Property=\"Margin\" Value=\"0,-5,-2,0\" /></Trigger></ControlTemplate.Triggers></ControlTemplate>");
             DrinksViewModel model = new DrinksViewModel(ResourceLoadHelper.GetLocalString("GoodsDescription")).BindToMainModel();
             int count = model.Drinks.Count();
-            ScrollableWidth = (count > 6 ? Math.Ceiling((double)count / 2) : 3) * 102;
+            _scrollableContainerParams = new Display((count > 6 ? Math.Ceiling((double)count / 2) : 3) * 102);
             InitializeComponent();
             Drinks.Header = ResourceLoadHelper.GetLocalString("DrinksGroup");
             DataContext = model;
-            foreach(Product p in model.Drinks)
+            foreach (Product p in model.Drinks)
             {
                 Button b = new Button();
                 model.SetToolTip(p.id, p.quantity, p.price, ResourceLoadHelper.GetLocalName(p.locals), b);
@@ -36,10 +39,10 @@ namespace VendingMachine.WPF
                 toolTip.Source = model;
                 toolTip.Mode = BindingMode.OneWay;
                 b.SetBinding(Button.ToolTipProperty, toolTip);
-                Binding Visible = new Binding(string.Format("DrinkButton[{0}].Visible", p.id));
+                /*Binding Visible = new Binding(string.Format("DrinkButton[{0}].Visible", p.id));
                 Visible.Source = model;
                 Visible.Mode = BindingMode.OneWay;
-                b.SetBinding(Button.VisibilityProperty, Visible);
+                b.SetBinding(Button.VisibilityProperty, Visible);*/
                 Binding Template = new Binding(string.Format("DrinkButton[{0}].Template", p.id));
                 Template.Source = model;
                 Template.Mode = BindingMode.OneWay;
@@ -82,20 +85,49 @@ namespace VendingMachine.WPF
             Guid id = Guid.Empty;
             if (e.PropertyName == "Template" && (model = DataContext as DrinksViewModel)?.DrinkButton[id = (sender as DrinksViewModel.Display)?.ID ?? Guid.Empty] != null && model.DrinkButton[id].Template == null)
             {
+                int count = DrinksContainer.Children.Count - 1;
+                _scrollableContainerParams.ScrollableWidth = (count > 6 ? Math.Ceiling((double)count / 2) : 3) * 102;
                 DrinksContainer.Children.Remove(model.DrinkButton[id].ButtonLink as Button);
             }
         }
 
         public void Dispose()
         {
-            DrinksViewModel model = DataContext as DrinksViewModel;
-            //if (model != null)
-            //{
-                model.DrinkButton.ToList().ForEach(x => { if (x.Value != null) x.Value.PropertyChanged -= Template_PropertyChanged; });
-                model.DisposeRequest -= Dispose;
-            //}
+            if (!_disposed)
+            {
+                _disposed = true;
+                DrinksViewModel model = DataContext as DrinksViewModel;
+                if (model != null)
+                {
+                    model.DrinkButton.ToList().ForEach(x => { if (x.Value != null) x.Value.PropertyChanged -= Template_PropertyChanged; });
+                    model.DisposeRequest -= Dispose;
+                }
+            }
         }
 
-        public double ScrollableWidth { get; set; }
+        public class Display : MVVM
+        {
+            private double _width;
+
+            public Display(double width)
+            {
+                _width = width;
+            }
+
+            public double ScrollableWidth
+            {
+                get { return _width; }
+                set
+                {
+                    if (_width != value)
+                    {
+                        _width = value;
+                        OnPropertyChanged(nameof(ScrollableWidth));
+                    }
+                }
+            }
+        }
+
+        public Display ScrollableContainerParams { get { return _scrollableContainerParams; }}
     }
 }

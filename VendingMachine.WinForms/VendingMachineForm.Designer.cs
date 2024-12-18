@@ -30,6 +30,7 @@ namespace VendingMachine.WinForms
         /// </summary>
         private void InitializeComponent()
         {
+            this.AutoScaleMode = AutoScaleMode.None;
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VendingMachineForm));
             this.fillingCupProgressBarControl = new VendingMachine.WinForms.FillingCupProgressBarControl();

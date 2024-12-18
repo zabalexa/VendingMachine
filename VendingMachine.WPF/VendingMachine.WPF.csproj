@@ -60,8 +60,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\AnimationEx\BorderContainerFlash.cs" />
+    <Compile Include="Controls\AnimationEx\FillCupProgressBar.cs" />
+    <Compile Include="Controls\AnimationEx\ListViewItemStyleSelector.cs" />
+    <Compile Include="Controls\CupProgressBarControl.xaml.cs">
+      <DependentUpon>CupProgressBarControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ResourceLoadHelper.cs" />
     <Page Include="Controls\CashButtonControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\CupProgressBarControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -10,7 +10,7 @@
     <Grid>
         <GroupBox x:Name="Drinks" FontWeight="Bold">
             <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <WrapPanel x:Name="DrinksContainer" HorizontalAlignment="Left" Width="{Binding ElementName=UsrCtrl, Path=ScrollableWidth}" Margin="0,0,0,0" VerticalAlignment="Top" MinWidth="300" MinHeight="204" />
+                <WrapPanel x:Name="DrinksContainer" HorizontalAlignment="Left" Width="{Binding ElementName=UsrCtrl, Path=ScrollableContainerParams.ScrollableWidth}" Margin="0,0,0,0" VerticalAlignment="Top" MinWidth="300" MinHeight="204" />
             </ScrollViewer>
         </GroupBox>
     </Grid>

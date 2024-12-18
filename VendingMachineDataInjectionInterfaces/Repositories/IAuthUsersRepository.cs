@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using VendingMachineDataInjectionInterfaces.DomainMappedObjects;
-
-namespace VendingMachineDataInjectionInterfaces
+﻿namespace VendingMachineDataInjectionInterfaces
 {
     public interface IAuthUsersRepository
     {

@@ -21,7 +21,6 @@ namespace VendingMachineDataInjectionInterfaces.DomainMappedObjects
                 if (_local_name != value)
                 {
                     _local_name = value;
-                    //OnPropertyChanged(nameof(local_name));
                 }
             }
         }
@@ -38,7 +37,6 @@ namespace VendingMachineDataInjectionInterfaces.DomainMappedObjects
                 if (_color != value)
                 {
                     _color = value;
-                    //OnPropertyChanged(nameof(color));
                 }
             }
         }
@@ -55,7 +53,6 @@ namespace VendingMachineDataInjectionInterfaces.DomainMappedObjects
                 if (_price != value)
                 {
                     _price = value;
-                    //OnPropertyChanged(nameof(price));
                 }
             }
         }
@@ -89,7 +86,6 @@ namespace VendingMachineDataInjectionInterfaces.DomainMappedObjects
                 if (_type != value)
                 {
                     _type = value;
-                    //OnPropertyChanged(nameof(type));
                 }
             }
         }
@@ -100,22 +96,13 @@ namespace VendingMachineDataInjectionInterfaces.DomainMappedObjects
             set { color = value.ToHtml(); }
         }
 
-        //private ReadOnlyObservableCollection<KeyValuePair<string, string>> _locals;
+        public int argbColor
+        {
+            get { return parsedColor.ToArgb(); }
+            set { parsedColor = Color.FromArgb(value); }
+        }
+
         public Dictionary<string, string> locals { get; set; }
-        //{
-        //    get
-        //    {
-        //        return _locals.ToDictionary(x => x.Key, y => y.Value);
-        //    }
-        //    set
-        //    {
-        //        if (_locals.Count() != value.Count())
-        //        {
-        //            _locals = new ReadOnlyObservableCollection<KeyValuePair<string, string>>(new ObservableCollection<KeyValuePair<string, string>>(value));
-        //            //OnPropertyChanged(nameof(locals));
-        //        }
-        //    }
-        //}
 
         #region ICloneable Support
         public object Clone()

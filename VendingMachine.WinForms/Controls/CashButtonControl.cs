@@ -38,14 +38,6 @@ namespace VendingMachine.WinForms
                 return;
             }
             Shown(this, e);
-            coins1.SetControlType(_controlType);
-            coins2.SetControlType(_controlType);
-            coins5.SetControlType(_controlType);
-            coins10.SetControlType(_controlType);
-            coinsVM1.SetControlType(_controlType);
-            coinsVM2.SetControlType(_controlType);
-            coinsVM5.SetControlType(_controlType);
-            coinsVM10.SetControlType(_controlType);
         }
 
         public void SetControlType(AccountType type)
@@ -57,9 +49,13 @@ namespace VendingMachine.WinForms
                     coinsInfo2.Visible = true;
                     coinsInfo5.Visible = true;
                     coinsInfo10.Visible = true;
+                    coins1.SetControlType(_controlType);
                     coins1.Visible = true;
+                    coins2.SetControlType(_controlType);
                     coins2.Visible = true;
+                    coins5.SetControlType(_controlType);
                     coins5.Visible = true;
+                    coins10.SetControlType(_controlType);
                     coins10.Visible = true;
                     groupBox1.Visible = true;
                     break;
@@ -68,9 +64,13 @@ namespace VendingMachine.WinForms
                     coinsInfoVM2.Visible = true;
                     coinsInfoVM5.Visible = true;
                     coinsInfoVM10.Visible = true;
+                    coinsVM1.SetControlType(_controlType);
                     coinsVM1.Visible = true;
+                    coinsVM2.SetControlType(_controlType);
                     coinsVM2.Visible = true;
+                    coinsVM5.SetControlType(_controlType);
                     coinsVM5.Visible = true;
+                    coinsVM10.SetControlType(_controlType);
                     coinsVM10.Visible = true;
                     changeButton.Visible = true;
                     descriptionToolTips.Active = true;
@@ -246,15 +246,16 @@ namespace VendingMachine.WinForms
 
         private void coins_GiveFeedback(object sender, GiveFeedbackEventArgs e)
         {
+            int sz = 30;
             switch (e.Effect)
             {
                 case DragDropEffects.Move:
                     e.UseDefaultCursors = false;
-                    Cursor.Current = ResourceLoadHelper.GetCoinCursor(new Size(30, 30), ((CoinsBar)sender).BackColor, ((CoinsBar)sender).ForeColor, ((CoinsBar)sender).Parent.Font, ((CoinsBar)sender).CoinValue);
+                    Cursor.Current = ResourceLoadHelper.GetCoinCursor(new Size(sz, sz), ((CoinsBar)sender).BackColor, ((CoinsBar)sender).ForeColor, ((CoinsBar)sender).Parent.Font, ((CoinsBar)sender).CoinValue);
                     break;
                 case DragDropEffects.Link:
                     e.UseDefaultCursors = false;
-                    Cursor.Current = ResourceLoadHelper.GetPutCoinCursor(new Size(10, 30), ((CoinsBar)sender).BackColor, ((CoinsBar)sender).ForeColor);
+                    Cursor.Current = ResourceLoadHelper.GetPutCoinCursor(new Size(10, sz), ((CoinsBar)sender).BackColor, ((CoinsBar)sender).ForeColor);
                     break;
             }
         }
@@ -349,13 +350,19 @@ namespace VendingMachine.WinForms
                     string s = CoinValue.ToString();
                     if (_controlType == AccountType.VendingMachine)
                     {
-                        r.Inflate(s.Length > 1 ? -1 : -6, -3);
+                        r.Inflate(s.Length > 1 ? -1 : - 6, -3);
                     }
                     else
                     {
                         r.Inflate(s.Length > 1 ? 0 : -5, -4);
                     }
-                    Font f = Parent == null ? new Font("Microsoft Sans Serif", 12, FontStyle.Bold) : new Font(Parent.Font.FontFamily, 12, Parent.Font.Style | FontStyle.Bold);
+                    float sz = 12;
+                    Font f = Parent == null ? new Font("Microsoft Sans Serif", sz, FontStyle.Bold) : new Font(Parent.Font.FontFamily, sz, Parent.Font.Style | FontStyle.Bold);
+                    while (s.Length > 1 && eventArgs.Graphics.MeasureString(s, f, r.Size).ToSize().Width > r.Width)
+                    {
+                        sz = f.Size - 1;
+                        f = Parent == null ? new Font("Microsoft Sans Serif", sz, FontStyle.Bold) : new Font(Parent.Font.FontFamily, sz, Parent.Font.Style | FontStyle.Bold);
+                    }
                     eventArgs.Graphics.DrawString(s, f, new SolidBrush(ForeColor), r);
                 }
             }

@@ -23,6 +23,7 @@ namespace VendingMachineDataInjectionInterfaces
 
     public interface IBaseRepositoryFactory : ICloneable
     {
+        bool IsStub { get; }
         ICustomerPurseRepository CreateCustomerPurseRepository();
         ICustomerPurse CustomerPurseProxy { get; }
         IVendingMachineChangeRepository CreateVendingMachineChangeRepository();

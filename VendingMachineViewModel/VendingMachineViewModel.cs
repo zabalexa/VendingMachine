@@ -4,15 +4,17 @@ using System.Linq;
 using System.Windows.Input;
 using VendingMachineModel;
 using VendingMachineDataInjectionInterfaces;
+using VendingMachineDataInjectionInterfaces.DomainMappedObjects;
 
 namespace VendingMachineViewModel
 {
     public interface IMultiEventsAggregator//Visitor
     {
-        event VoidEventHandler UpdatePutCoinBoxRequest;
+        event VoidEventHandler UpdatePutCoinBoxRequest, DisposeRequest;
         event VoidEventHandler<AccountType, CoinType> UpdateTemplatesRequest;
         void UpdatePutCoinBox();
         void UpdateTemplates(AccountType type, CoinType coin);
+        void VisualEnqueue(Product drink);
         void ThanksMessage();
         void InsufficientMessage();
         ICustomerPurse GetCustomerCashPurse();
@@ -20,6 +22,7 @@ namespace VendingMachineViewModel
         IGoods GetGoods();
         DrinksViewModel Subscribe(DrinksViewModel subscriber);
         CoinsViewModel Subscribe(CoinsViewModel subscriber);
+        QueueViewModel Subscribe(QueueViewModel subscriber);
     }
 
     public interface IPaymentEventsPublsher//Visitor
@@ -33,13 +36,10 @@ namespace VendingMachineViewModel
 
     public interface IPurchaseEventsPublsher//Visitor
     {
-        event RequestEventHandler<int, Guid> GetDrinksQtyRequest;
+        event RequestEventHandler<int, Guid> GetDrinksQtyRequest, GetDrinksPriceRequest;
         event RequestEventHandler<bool, int> ShippingRequest;
-        event RequestEventHandler<int, Guid> GetDrinksPriceRequest;
-        event VoidEventHandler<Guid> PurchaseRequest;
-        event VoidEventHandler ThanksMessageRequest;
-        event VoidEventHandler<Guid> DrinksButtonHideRequest;
-        event VoidEventHandler InsufficientMessageRequest;
+        event VoidEventHandler<Guid> PurchaseRequest, DrinksButtonHideRequest;
+        event VoidEventHandler ThanksMessageRequest, InsufficientMessageRequest;
         ICommand Subscribe(DrinksViewModel subscriber);
     }
 
@@ -48,11 +48,9 @@ namespace VendingMachineViewModel
         public event RequestEventHandler<ICustomerPurse> GetCustomerCashPurseRequest;
         public event RequestEventHandler<IVendingMachineChange> GetVendingMachineChangeRequest;
         public event RequestEventHandler<IGoods> GetGoodsRequest;
-        public event VoidEventHandler RefreshPutCoinBoxRequest;
+        public event VoidEventHandler<Product> VisualEnqueueRequest;
+        public event VoidEventHandler RefreshPutCoinBoxRequest, ThanksMessageRequest, InsufficientMessageRequest, DisposeRequest;
         public event VoidEventHandler<AccountType, CoinType> RefreshTemplatesRequest;
-        public event VoidEventHandler ThanksMessageRequest;
-        public event VoidEventHandler InsufficientMessageRequest;
-        public event VoidEventHandler DisposeRequest;
 
         public virtual void Initialize()
         {
@@ -70,6 +68,7 @@ namespace VendingMachineViewModel
             GetGoodsRequest += subscriber.GetGoods;
             RefreshPutCoinBoxRequest += subscriber.UpdatePutCoinBox;
             RefreshTemplatesRequest += subscriber.UpdateTemplates;
+            VisualEnqueueRequest += subscriber.VisualEnqueue;
             ThanksMessageRequest += subscriber.ThanksMessage;
             InsufficientMessageRequest += subscriber.InsufficientMessage;
         }
@@ -87,6 +86,11 @@ namespace VendingMachineViewModel
         protected IGoods GetGoods()
         {
             return GetGoodsRequest?.Invoke();
+        }
+
+        protected void VisualEnqueue(Product drink)
+        {
+            VisualEnqueueRequest?.Invoke(drink);
         }
 
         protected void RefreshPutCoinBox()
@@ -124,6 +128,10 @@ namespace VendingMachineViewModel
             {
                 GetGoodsRequest.GetInvocationList().ToList().ForEach(x => GetGoodsRequest -= (RequestEventHandler<IGoods>)x);
             }
+            if (VisualEnqueueRequest != null)
+            {
+                VisualEnqueueRequest.GetInvocationList().ToList().ForEach(x => VisualEnqueueRequest -= (VoidEventHandler<Product>)x);
+            }
             if (RefreshPutCoinBoxRequest != null)
             {
                 RefreshPutCoinBoxRequest.GetInvocationList().ToList().ForEach(x => RefreshPutCoinBoxRequest -= (VoidEventHandler)x);
@@ -135,7 +143,7 @@ namespace VendingMachineViewModel
             if (DisposeRequest != null)
             {
                 DisposeRequest();
-                DisposeRequest.GetInvocationList().ToList().ForEach(x => DisposeRequest -= (VoidEventHandler)x);
+                DisposeRequest?.GetInvocationList().ToList().ForEach(x => DisposeRequest -= (VoidEventHandler)x);
             }
         }
         #endregion
@@ -147,13 +155,11 @@ namespace VendingMachineViewModel
         public event RequestEventHandler<bool> PaymentBackRequest;
         public event RequestEventHandler<int, CoinType> GetCoinsRequest;
         public event RequestEventHandler<bool, Dictionary<CoinType, int>> PaymentRequest;
-        public event RequestEventHandler<int, Guid> GetDrinksQtyRequest;
+        public event RequestEventHandler<int, Guid> GetDrinksQtyRequest, GetDrinksPriceRequest;
         public event RequestEventHandler<bool, int> ShippingRequest;
-        public event RequestEventHandler<int, Guid> GetDrinksPriceRequest;
-        public event VoidEventHandler<Guid> PurchaseRequest;
-        public event VoidEventHandler ThanksMessageRequest;
-        public event VoidEventHandler<Guid> DrinksButtonHideRequest;
-        public event VoidEventHandler InsufficientMessageRequest;
+        public event VoidEventHandler<Guid> PurchaseRequest, DrinksButtonHideRequest;
+        public event VoidEventHandler ThanksMessageRequest, InsufficientMessageRequest;
+        public event RequestEventHandler<Product, Guid> GetProduct;
 
         #region ICommand Support
         public abstract void Execute(object parameter);
@@ -304,9 +310,9 @@ namespace VendingMachineViewModel
         private readonly IVendingMachineChange _vendingMachineChange;
         private readonly IGoods _goods;
         private readonly Display _display = new Display();
-        public event VoidEventHandler UpdatePutCoinBoxRequest;
+        public event VoidEventHandler UpdatePutCoinBoxRequest, DisposeRequest;
         public event VoidEventHandler<AccountType, CoinType> UpdateTemplatesRequest;
-        public event VoidEventHandler DisposeRequest;
+        public event VoidEventHandler<Product> VisualEnqueueRequest;
 
         public VendingMachineViewModel()
         {
@@ -374,6 +380,7 @@ namespace VendingMachineViewModel
         public QueueViewModel Subscribe(QueueViewModel subscriber)
         {
             DisposeRequest += subscriber.Dispose;
+            VisualEnqueueRequest += subscriber.Visual_Enqueue;
             subscriber.Publish(this);
             subscriber.Initialize();
             return subscriber;
@@ -404,6 +411,11 @@ namespace VendingMachineViewModel
             UpdateTemplatesRequest?.Invoke(type, coin);
         }
 
+        public void VisualEnqueue(Product drink)
+        {
+            VisualEnqueueRequest?.Invoke(drink);
+        }
+
         public void ThanksMessage()
         {
             _display.Text = "ThanksMessage";
@@ -426,10 +438,14 @@ namespace VendingMachineViewModel
             {
                 UpdateTemplatesRequest.GetInvocationList().ToList().ForEach(x => UpdateTemplatesRequest -= (VoidEventHandler<AccountType, CoinType>)x);
             }
+            if (VisualEnqueueRequest != null)
+            {
+                VisualEnqueueRequest.GetInvocationList().ToList().ForEach(x => VisualEnqueueRequest -= (VoidEventHandler<Product>)x);
+            }
             if (DisposeRequest != null)
             {
                 DisposeRequest();
-                DisposeRequest.GetInvocationList().ToList().ForEach(x => DisposeRequest -= (VoidEventHandler)x);
+                DisposeRequest?.GetInvocationList().ToList().ForEach(x => DisposeRequest -= (VoidEventHandler)x);
             }
         }
         #endregion

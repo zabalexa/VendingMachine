@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using VendingMachineDataInjectionInterfaces;
-using VendingMachineModel;
 using VendingMachinePresenter.ViewInterfaces;
 
 namespace VendingMachinePresenter

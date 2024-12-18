@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;

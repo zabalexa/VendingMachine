@@ -7,6 +7,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using VendingMachineDataInjectionInterfaces;
 using VendingMachineViewModel;
 
@@ -17,8 +18,18 @@ namespace VendingMachine.WPF
     /// </summary>
     public partial class CashButtonControl : UserControl, IDisposable
     {
+        const int _CLICK_DELAY_ = 200 ;
         private AccountType _controlType;
+        private bool _notClick = false;
+        private TimeSpan _tsClick;
+        private bool _drag = false;
+        private bool _dragOver = false;
+        private bool _hitTestPass = false;
         private Dictionary<CoinType, int> _drawnCoins;
+        private Cursor _dragCursor;
+        private Cursor _dropCursor;
+        private Cursor _defaultCursor = Cursors.Arrow;
+        private bool _disposed = false;
 
         public CashButtonControl()
         {
@@ -26,13 +37,14 @@ namespace VendingMachine.WPF
             DropCoins.Header = ResourceLoadHelper.GetLocalString("PayGroup");
             DropCurrency.Content = ResourceLoadHelper.GetLocalString("PayCurrency");
             ChangeButton.Content = ResourceLoadHelper.GetLocalString("Change");
+            _dropCursor = ResourceLoadHelper.GetPutCoinCursor((Color)ColorConverter.ConvertFromString("Gold"), (Color)ColorConverter.ConvertFromString("Chocolate"));
         }
 
         public void SetControlType(AccountType type)
         {
             CoinsViewModel model = new CoinsViewModel(_controlType = type).BindToMainModel();
             model.InitTemplate(() => {
-                if (model.PayBalance > 0)
+                if (model.PayBalance > 0 && (_drawnCoins?.Count ?? 0) > 0)
                 {
                     int h = 40 * _drawnCoins.Count;
                     StringBuilder template = new StringBuilder();
@@ -69,6 +81,7 @@ namespace VendingMachine.WPF
             switch (_controlType)
             {
                 case AccountType.Customer:
+                    CashControl.AllowDrop = true;
                     ChangeButton.Visibility = Visibility.Collapsed;
                     Canvas.SetTop(ProgressBar1, 0);
                     Canvas.SetTop(ProgressBar2, 40);
@@ -81,8 +94,6 @@ namespace VendingMachine.WPF
                     Canvas.SetLeft(ProgressBar2, 40);
                     Canvas.SetLeft(ProgressBar5, 80);
                     Canvas.SetLeft(ProgressBar10, 120);
-                    break;
-                default:
                     break;
             }
             ProgressBar1.SetControlType(type, CoinType.coin1);
@@ -111,19 +122,226 @@ namespace VendingMachine.WPF
 
         public void Dispose()
         {
-            if (_controlType == AccountType.Customer)
+            if (_controlType == AccountType.Customer && !_disposed)
             {
+                _disposed = true;
                 ProgressBar1.Dispose();
                 ProgressBar2.Dispose();
                 ProgressBar5.Dispose();
                 ProgressBar10.Dispose();
                 CoinsViewModel model = DataContext as CoinsViewModel;
-                //if (model != null)
-                //{
+                if (model != null)
+                {
                     model.DisposeRequest -= Dispose;
-                //}
+                }
             }
         }
+
+        #region Drag-And-Drop
+
+        private void PutCoins_OnDragEnter(object sender, DragEventArgs e)
+        {
+            if (_drag)
+            {
+                _dragOver = true;
+                e.Effects = DragDropEffects.Link;
+                PutCoins.Fill = new SolidColorBrush(Colors.DarkOliveGreen);
+                e.Handled = true;
+            }
+        }
+
+        private void PutCoins_OnDragLeave(object sender, DragEventArgs e)
+        {
+            if (_drag)
+            {
+                _dragOver = false;
+                e.Effects = DragDropEffects.Move;
+                PutCoins.Fill = new SolidColorBrush(Colors.LightGray);
+                e.Handled = true;
+            }
+        }
+
+        private void PutCoins_OnDrop(object sender, DragEventArgs e)
+        {
+            if (_drag)
+            {
+                PutCoins.Fill = new SolidColorBrush(Colors.LightGray);
+                CoinsViewModel model = DataContext as CoinsViewModel;
+                if (model != null)
+                {
+                    model.PutCoinBox.DraggingCoin = (int)e.Data.GetData(typeof (int));
+                }
+                _drag = false;
+                _dragOver = false;
+                ReleaseCapture();
+            }
+        }
+
+        private void ReleaseCapture()
+        {
+            _notClick = false;
+            _hitTestPass = false;
+            if (ProgressBar1.IsMouseCaptured)
+            {
+                ProgressBar1.ReleaseMouseCapture();
+                ProgressBar_OnLostMouseCapture(ProgressBar1, null);
+            } else
+            if (ProgressBar2.IsMouseCaptured)
+            {
+                ProgressBar2.ReleaseMouseCapture();
+                ProgressBar_OnLostMouseCapture(ProgressBar2, null);
+            } else
+            if (ProgressBar5.IsMouseCaptured)
+            {
+                ProgressBar5.ReleaseMouseCapture();
+                ProgressBar_OnLostMouseCapture(ProgressBar5, null);
+            } else
+            if (ProgressBar10.IsMouseCaptured)
+            {
+                ProgressBar10.ReleaseMouseCapture();
+                ProgressBar_OnLostMouseCapture(ProgressBar10, null);
+            }
+            else
+            {
+                ProgressBar_OnLostMouseCapture(CashControl, null);
+            }
+        }
+
+        private void ProgressBar_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            CoinsBar s = sender as CoinsBar;
+            if (_hitTestPass = (e.GetPosition(s).X - 15 <= (s.Value > s.VisualMax ? s.VisualMax : s.Value) * (s.Width - 14) / (s.VisualMax - s.Minimum)))
+            {
+                _tsClick = DateTime.Now.TimeOfDay;
+                _notClick = true;
+                s.CaptureMouse();
+                e.Handled = true;
+            }
+        }
+
+        private void CashControl_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            double ts = (DateTime.Now.TimeOfDay - _tsClick).TotalMilliseconds;
+            CoinsBar s = sender as CoinsBar;
+            if ((s == null) && ts < _CLICK_DELAY_)
+            {
+                _drag = false;
+                ReleaseCapture();
+            }
+            else
+            {
+                if (_drag)
+                {
+                    _drag = false;
+                    ReleaseCapture();
+                }
+                else
+                if (!_drag || (_hitTestPass && (e.GetPosition(s).X - 15 <= (s.Value > s.VisualMax ? s.VisualMax : s.Value)*(s.Width - 14)/(s.VisualMax - s.Minimum))))
+                {
+                    if (_hitTestPass && (s != null))
+                    {
+                        _hitTestPass = false;
+                        ICommand cmd = (s.Template.FindName("btn", s) as Button)?.Command;
+                        if (cmd?.CanExecute(s.CoinValue) ?? false)
+                        {
+                            cmd.Execute(s.CoinValue);
+                        }
+                    }
+                    else
+                    {
+                        _drag = false;
+                        ReleaseCapture();
+                    }
+                }
+                else
+                {
+                    _drag = false;
+                    ReleaseCapture();
+                }
+            }
+        }
+
+        private void ProgressBar_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_notClick && !_drag)
+            {
+                if ((DateTime.Now.TimeOfDay - _tsClick).TotalMilliseconds >= _CLICK_DELAY_)
+                {
+                    _drag = true;
+                    CoinsBar s = sender as CoinsBar;
+                    DragDrop.DoDragDrop(s, new DataObject(typeof (int), s.CoinValue), DragDropEffects.Move | DragDropEffects.Link);
+                }
+            } else
+            if (!_notClick && _drag)
+            {
+                _drag = false;
+                ReleaseCapture();
+            }
+        }
+
+        private void CashControl_OnGiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            if (_drag)
+            {
+                switch (e.Effects)
+                {
+                    case DragDropEffects.Move:
+                        Mouse.SetCursor(_dragOver ? _dropCursor : _dragCursor);
+                        e.Handled = true;
+                        break;
+                    case DragDropEffects.Link:
+                        Mouse.SetCursor(_dropCursor);
+                        e.Handled = true;
+                        break;
+                }
+            }
+        }
+
+        private void ProgressBar_OnGiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            if (_drag)
+            {
+                switch (e.Effects)
+                {
+                    case DragDropEffects.Link:
+                        Mouse.SetCursor(_dropCursor);
+                        e.Handled = true;
+                        break;
+                }
+            }
+        }
+
+        private void ProgressBar_OnGotMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (_notClick)
+            {
+                CoinsBar s = sender as CoinsBar;
+                CashControl.Cursor = _dragCursor = ResourceLoadHelper.GetCoinCursor((Color)ColorConverter.ConvertFromString("Gold"), (Color)ColorConverter.ConvertFromString("Chocolate"), s.CoinValue);
+                e.Handled = true;
+            }
+        }
+
+        private void ProgressBar_OnLostMouseCapture(object sender, MouseEventArgs e)
+        {
+            if (!_notClick || !_drag || e == null)
+            {
+                CashControl.Cursor = _defaultCursor;
+                Mouse.UpdateCursor();
+                _drag = false;
+                if (e != null)
+                {
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void CashControl_OnDrop(object sender, DragEventArgs e)
+        {
+            _drag = false;
+            ReleaseCapture();
+        }
+
+        #endregion
     }
 
     public class CoinsBar : ProgressBar, IDisposable
@@ -131,29 +349,20 @@ namespace VendingMachine.WPF
         private AccountType _type = AccountType.Unknown;
         private CoinType _coinType = CoinType.unknown;
         private Size _sz;
-        private Cursor _mainCursor;
-        private bool _notClick = false;
+        private bool _disposed = false;
+        public int VisualMax { get; set; }
 
         public CoinsBar()
         {
             Minimum = 0;
+            VisualMax = 10;
             Maximum = int.MaxValue;
-        }
-
-        public Cursor MainCursor
-        {
-            get { return _mainCursor; }
         }
 
         public int CoinValue
         {
             get { return (int)_coinType; }
             set { _coinType = (CoinType)value; }
-        }
-
-        public bool NotClick
-        {
-            get { return _notClick; }
         }
 
         public void SetControlType(AccountType type, CoinType coin)
@@ -180,19 +389,23 @@ namespace VendingMachine.WPF
             {
                 case AccountType.Customer:
                     Height = 30;
-                    _sz = new Size(100, 30);
+                    Width = 117;
+                    _sz = new Size(102, Height);
                     top = 0;
                     txtmargintop = -9;
                     break;
                 case AccountType.VendingMachine:
                     Orientation = Orientation.Vertical;
+                    Height = 117;
                     Width = 30;
-                    _sz = new Size(30, 100);
+                    _sz = new Size(Width, 102);
                     left = 0;
                     txtmarginleft = -5;
                     break;
                 default:
-                    _sz = new Size();
+                    Height = 1;
+                    Width = 1;
+                    _sz = Size.Empty;
                     break;
             }
             AddHandler(LoadedEvent, new RoutedEventHandler((object o, RoutedEventArgs e) => {
@@ -201,7 +414,7 @@ namespace VendingMachine.WPF
                 {
                     case AccountType.Customer:
                         Button btn = bar.Template.FindName("btn", bar) as Button;
-                        model.InitTemplate(() => { return ResourceLoadHelper.GetCoinsProgressBarLineImage(_type, (int)_coinType, _sz, (int)Value, 10, (Color)ColorConverter.ConvertFromString("Gold"), (Color)ColorConverter.ConvertFromString("Chocolate")).Source; }, _coinType, btn);
+                        model.InitTemplate(() => { return ResourceLoadHelper.GetCoinsProgressBarLineImage(_type, (int)_coinType, _sz, (int)Value, (int)(bar.VisualMax - bar.Minimum), (Color)ColorConverter.ConvertFromString("Gold"), (Color)ColorConverter.ConvertFromString("Chocolate")).Source; }, _coinType, btn);
                         model.PutCoinBox.Templates[_coinType].PropertyChanged += Template_PropertyChanged;
                         btn.CommandParameter = (int)_coinType;
                         Binding cmd = new Binding();
@@ -210,7 +423,7 @@ namespace VendingMachine.WPF
                         btn.SetBinding(Button.CommandProperty, cmd);
                         break;
                     case AccountType.VendingMachine:
-                        model.InitTemplate(() => { return ResourceLoadHelper.GetCoinsProgressBarLineImage(_type, (int)_coinType, _sz, (int)Value, 10, (Color)ColorConverter.ConvertFromString("Gold"), (Color)ColorConverter.ConvertFromString("Chocolate")).Source; }, _coinType);
+                        model.InitTemplate(() => { return ResourceLoadHelper.GetCoinsProgressBarLineImage(_type, (int)_coinType, _sz, (int)Value, (int)(bar.VisualMax - bar.Minimum), (Color)ColorConverter.ConvertFromString("Gold"), (Color)ColorConverter.ConvertFromString("Chocolate")).Source; }, _coinType);
                         break;
                 }
                 TextBox text = bar.Template.FindName("tbar", bar) as TextBox;
@@ -247,13 +460,14 @@ namespace VendingMachine.WPF
 
         public void Dispose()
         {
-            if (_type == AccountType.Customer)
+            if (_type == AccountType.Customer && !_disposed)
             {
+                _disposed = true;
                 CoinsViewModel model = DataContext as CoinsViewModel;
-                //if (model != null)
-                //{
-                model.PutCoinBox.Templates[_coinType].PropertyChanged -= Template_PropertyChanged;
-                //}
+                if (model != null)
+                {
+                    model.PutCoinBox.Templates[_coinType].PropertyChanged -= Template_PropertyChanged;
+                }
             }
         }
     }

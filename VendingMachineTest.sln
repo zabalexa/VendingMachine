@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendingMachineTest", "VendingMachineTest\VendingMachineTest.csproj", "{D21B6762-C8AD-4C8C-BE3F-8BFF3132AB31}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendingMachineDataInjectionInterfaces", "VendingMachineDataInjectionInterfaces\VendingMachineDataInjectionInterfaces.csproj", "{A528F00C-CDDB-4064-A02A-A50709146558}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendingMachineModel", "VendingMachineModel\VendingMachineModel.csproj", "{A1E371BA-0CB7-409F-9509-AFAF571DF5D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VendingMachineStub", "VendingMachineStub\VendingMachineStub.csproj", "{3F7C9D5E-AE71-4708-AEDC-99FA3070F34B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{A1E371BA-0CB7-409F-9509-AFAF571DF5D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1E371BA-0CB7-409F-9509-AFAF571DF5D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1E371BA-0CB7-409F-9509-AFAF571DF5D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F7C9D5E-AE71-4708-AEDC-99FA3070F34B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7C9D5E-AE71-4708-AEDC-99FA3070F34B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F7C9D5E-AE71-4708-AEDC-99FA3070F34B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F7C9D5E-AE71-4708-AEDC-99FA3070F34B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

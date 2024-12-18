@@ -40,6 +40,7 @@ namespace VendingMachine.WPF
 
         public virtual Size Size { get; set; }
 
+        private float _dpi;
         [Obsolete("System.Drawing usage")]
         public virtual System.Drawing.Size InnerSize
         {
@@ -47,9 +48,15 @@ namespace VendingMachine.WPF
             {
                 using (System.Drawing.Graphics g = System.Drawing.Graphics.FromHwnd(IntPtr.Zero))
                 {
+                    _dpi = g.DpiX;
                     return new System.Drawing.Size { Width = (int)(Size.Width * g.DpiX / 96), Height = (int)(Size.Height * g.DpiY / 96) };
                 }
             }
+        }
+
+        public bool IsHighDPI
+        {
+            get { return _dpi > 100; }
         }
 
         public virtual Color BackColor { get; set; }
@@ -86,7 +93,7 @@ namespace VendingMachine.WPF
         [Obsolete("System.Drawing usage")]
         public BaseShapeDecorator(BitmapShape shape, params int[] options)
         {
-            _innerSize = new System.Drawing.Size(32, 32);
+            _innerSize = new System.Drawing.Size(options.Length > 0 ? options[0] : 32, 32);
             _shape = shape;
             _options = options;
         }
@@ -245,11 +252,25 @@ namespace VendingMachine.WPF
                 string s = options[1].ToString();
                 if (vm)
                 {
-                    r.Inflate(s.Length > 1 ? -3 : -11, -2);
+                    if (IsHighDPI)
+                    {
+                        r.Inflate(s.Length > 1 ? -2 : -9, -1);
+                    }
+                    else
+                    {
+                        r.Inflate(s.Length > 1 ? -1 : -7, -1);
+                    }
                 }
                 else
                 {
-                    r.Inflate(s.Length > 1 ? 4 : -4, -8);
+                    if (IsHighDPI)
+                    {
+                        r.Inflate(s.Length > 1 ? 4 : -4, -8);
+                    }
+                    else
+                    {
+                        r.Inflate(s.Length > 1 ? 4 : -3, -5);
+                    }
                 }
                 System.Drawing.Font fnt = new System.Drawing.Font("Microsoft Sans Serif", 12, System.Drawing.FontStyle.Bold);
                 g.DrawString(s, fnt, new System.Drawing.SolidBrush(fc), r);
@@ -296,7 +317,14 @@ namespace VendingMachine.WPF
             g.FillEllipse(new System.Drawing.SolidBrush(bc), r);
             g.DrawEllipse(new System.Drawing.Pen(fc), r);
             string s = options[0].ToString();
-            r.Inflate(s.Length > 1 ? 4 : -4, -2);
+            if (IsHighDPI)
+            {
+                r.Inflate(s.Length > 1 ? 1 : -6, -4);
+            }
+            else
+            {
+                r.Inflate(s.Length > 1 ? -1 : -7, -5);
+            }
             System.Drawing.Font fnt = new System.Drawing.Font("Microsoft Sans Serif", 12, System.Drawing.FontStyle.Bold);
             g.DrawString(s, fnt, new System.Drawing.SolidBrush(fc), r);
             b.MakeTransparent(System.Drawing.Color.White);
@@ -330,7 +358,7 @@ namespace VendingMachine.WPF
         private static readonly BitmapShape _cImage = new BaseShapeDecorator(new CoinsImage());
         private static readonly BitmapShape _dImage = new BaseShapeDecorator(new DrinksImage());
         private static readonly BitmapShape _cCursor = new BaseShapeDecorator(new CoinCursorImage());
-        private static readonly BitmapShape _pCursor = new BaseShapeDecorator(new PutCoinCursorImage());
+        private static readonly BitmapShape _pCursor = new BaseShapeDecorator(new PutCoinCursorImage(), 10);
 
         [Obsolete("System.Drawing usage")]
         public static System.Drawing.Image GetImage(string name)

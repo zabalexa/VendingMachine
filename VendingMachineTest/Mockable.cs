@@ -11,7 +11,7 @@ namespace VendingMachineTest
 
         internal MockCustomerPurseRepository(int quantity)
         {
-            (_proxy = new ModelFactory(null).CustomerPurseProxy).Repo.Reinit(Dummies.DummyInitCoins(quantity).ToDictionary(x => x.Key, y => new Coin() { type = y.Key, quantity = y.Value }));
+            (_proxy = new ModelFactory("").CustomerPurseProxy).Repo.Reinit(Dummies.DummyInitCoins(quantity).ToDictionary(x => x.Key, y => new Coin() { type = y.Key, quantity = y.Value }));
         }
 
         public ICustomerPurse Proxy { get { return _proxy; }}
@@ -23,7 +23,7 @@ namespace VendingMachineTest
 
         internal MockVendingMachineChangeRepository(int quantity)
         {
-            (_proxy = new ModelFactory(null).VendingMachineChangeProxy).Repo.Reinit(Dummies.DummyInitCoins(quantity).ToDictionary(x => x.Key, y => new Coin() { type = y.Key, quantity = y.Value }));
+            (_proxy = new ModelFactory("").VendingMachineChangeProxy).Repo.Reinit(Dummies.DummyInitCoins(quantity).ToDictionary(x => x.Key, y => new Coin() { type = y.Key, quantity = y.Value }));
         }
 
         public IVendingMachineChange Proxy { get { return _proxy; } }
@@ -35,7 +35,7 @@ namespace VendingMachineTest
 
         internal MockGoodsRepository(int quantity, int price)
         {
-            (_proxy = new ModelFactory(null).GoodsProxy).Repo.Reinit(Dummies.DummyInitGoods(quantity, price));
+            (_proxy = new ModelFactory("").GoodsProxy).Repo.Reinit(Dummies.DummyInitGoods(quantity, price));
         }
 
         public IGoods Proxy { get { return _proxy; } }

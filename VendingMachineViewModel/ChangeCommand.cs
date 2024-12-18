@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace VendingMachineViewModel
+﻿namespace VendingMachineViewModel
 {
     /// <summary>
     /// Бизнес-логика размена монет

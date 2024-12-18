@@ -130,9 +130,11 @@ namespace VendingMachineViewModel
 
         public void Purchase(Guid pid)
         {
+            Product p = _drinks.FirstOrDefault(x => x.id == pid);
             GetGoods().Purchase(pid);
             RefreshPutCoinBox();
             SetToolTip(pid, GetDrinksQty(pid));
+            VisualEnqueue(p);
         }
 
         public void ThanksMessage()

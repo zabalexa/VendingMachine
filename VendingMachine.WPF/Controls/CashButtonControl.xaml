@@ -7,26 +7,30 @@
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+    <Grid x:Name="CashControl" MinHeight="160" Opacity="1" ForceCursor="True" GiveFeedback="CashControl_OnGiveFeedback" MouseUp="CashControl_OnMouseUp" Drop="CashControl_OnDrop">
+        <Grid.Background>
+            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightLightColorKey}}"/>
+        </Grid.Background>
         <Canvas>
-            <local:CoinsBar Value="{Binding Path=Coins[1].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar1" />
-            <local:CoinsBar Value="{Binding Path=Coins[2].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar2" />
-            <local:CoinsBar Value="{Binding Path=Coins[5].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar5" />
-            <local:CoinsBar Value="{Binding Path=Coins[10].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar10" />
+            <local:CoinsBar Value="{Binding Path=Coins[1].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar1" PreviewMouseDown="ProgressBar_OnMouseDown" MouseUp="CashControl_OnMouseUp" MouseMove="ProgressBar_OnMouseMove" GiveFeedback="ProgressBar_OnGiveFeedback" GotMouseCapture="ProgressBar_OnGotMouseCapture" LostMouseCapture="ProgressBar_OnLostMouseCapture" />
+            <local:CoinsBar Value="{Binding Path=Coins[2].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar2" PreviewMouseDown="ProgressBar_OnMouseDown" MouseUp="CashControl_OnMouseUp" MouseMove="ProgressBar_OnMouseMove" GiveFeedback="ProgressBar_OnGiveFeedback" GotMouseCapture="ProgressBar_OnGotMouseCapture" LostMouseCapture="ProgressBar_OnLostMouseCapture" />
+            <local:CoinsBar Value="{Binding Path=Coins[5].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar5" PreviewMouseDown="ProgressBar_OnMouseDown" MouseUp="CashControl_OnMouseUp" MouseMove="ProgressBar_OnMouseMove" GiveFeedback="ProgressBar_OnGiveFeedback" GotMouseCapture="ProgressBar_OnGotMouseCapture" LostMouseCapture="ProgressBar_OnLostMouseCapture" />
+            <local:CoinsBar Value="{Binding Path=Coins[10].quantity, Mode=OneWay}" Width="Auto" Height="Auto" x:Name="ProgressBar10" PreviewMouseDown="ProgressBar_OnMouseDown" MouseUp="CashControl_OnMouseUp" MouseMove="ProgressBar_OnMouseMove" GiveFeedback="ProgressBar_OnGiveFeedback" GotMouseCapture="ProgressBar_OnGotMouseCapture" LostMouseCapture="ProgressBar_OnLostMouseCapture" />
         </Canvas>
         <GroupBox x:Name="DropCoins" Height="100" Width="72" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Top">
             <Grid>
                 <TextBox Text="{Binding Path=PutCoinBox.PayBalance, Mode=OneWay}" Height="20" Width="30" Margin="5,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" TextAlignment="Right" TextWrapping="NoWrap" IsReadOnly="True" />
                 <Label x:Name="DropCurrency" Margin="0,0,-5,0" HorizontalAlignment="Right" VerticalAlignment="Top" />
-                <Rectangle x:Name="PutCoins" Height="40" Width="16" Margin="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Fill="LightGray" Stroke="Black">
+                <Rectangle x:Name="PutCoins" Height="40" Width="16" Margin="0,0,0,5" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Fill="LightGray" Stroke="Black" AllowDrop="True" PreviewDragEnter="PutCoins_OnDragEnter" PreviewDragLeave="PutCoins_OnDragLeave" PreviewDrop="PutCoins_OnDrop">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="Drop">
-                            <i:InvokeCommandAction Command="{Binding PaymentCommand}" />
+                            <i:InvokeCommandAction Command="{Binding PaymentCommand}" CommandParameter="{Binding Path=PutCoinBox.DraggingCoin, Mode=OneWay}" />
+                            <i:InvokeCommandAction Command="{Binding FocusCommand}" CommandParameter="{Binding ElementName=CashControl}" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </Rectangle>
             </Grid>
         </GroupBox>
-        <Button x:Name="ChangeButton" FontWeight="Bold" Width="100" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding ChangeCommand}" MouseEnter="ChangeButton_MouseEnter" />
+        <Button x:Name="ChangeButton" FontWeight="Bold" Width="100" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding ChangeCommand}" MouseEnter="ChangeButton_MouseEnter"/>
     </Grid>
 </UserControl>

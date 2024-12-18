@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using VendingMachinePresenter;
 using VendingMachinePresenter.ViewInterfaces;
 
 namespace VendingMachine.WinForms
